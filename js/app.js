@@ -18,7 +18,7 @@ angular.module('myApp', ['file-model'])
     $scope.upload = function () {
 		console.log($scope.file); // This is where the file is linked to.
 		var file =  $scope.file;// get from file input
-		var backendUrl = 'localhost:9292/api/v1/uploader';
+		var backendUrl = 'localhost:9292/api/v1/student_record';
 		var fd = new FormData();
 		
 
