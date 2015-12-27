@@ -29,12 +29,15 @@
 
 	function handleAuthResult(authResult) {
 	  var authorizeButton = document.getElementById('authorize-button');
+	  var logOutButton = document.getElementById('logOutButton');
 	  var form = document.getElementById('content');
 		console.log(authResult);
 
 	  if (authResult && !authResult.error) {
 	    authorizeButton.style.visibility = 'hidden';
 		form.style.visibility = '';
+		logOutButton.onclick = signOut;
+		
 	    //makeApiCall();
 	  } else {
 	    authorizeButton.style.visibility = '';
@@ -42,6 +45,15 @@
 	    authorizeButton.onclick = handleAuthClick;
 	  }
 	}
+	
+	function signOut() {
+	    //var auth2 = gapi.auth.getAuthInstance();
+	    gapi.auth.signOut()
+		.then(function () {
+	      console.log('User signed out.');
+	    });
+	  }
+	
 	
     function handleAuthClick(event) {
       gapi.auth.authorize({client_id: clientId, scope: scopes, immediate: false}, handleAuthResult);
@@ -80,6 +92,10 @@
   	<p ng-if='file'>
     	The name of your file is {{ file.name }} and the size is of {{ file.size }} bytes.
   	</p>
+	
+	<p>
+		<button id ="logOutButton">Log out</button>
+	</p>
   </form>
   
   
