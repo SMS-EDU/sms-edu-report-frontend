@@ -1,25 +1,89 @@
 <!DOCTYPE html>
-<html data-ng-app='myApp'>
+<html data-ng-app='myApp' >
 <head>
   <meta charset='utf-8'>
   <title>Index</title>
   <script src='https://ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.min.js'></script>
   <script src='https://rawgit.com/ghostbar/angular-file-model/master/angular-file-model.js'></script>
+  <script src="https://apis.google.com/js/client.js"></script>
   <script src='js/app.js'></script>
+  <!--<script src='js/loginCtrl.js'></script>-->
+  
+  <script type="text/javascript">
+  
+	var clientId = '648082928340-v8vp8au2spcc58rlpjkbh4fq68st6ug1.apps.googleusercontent.com';
+
+	var apiKey = '';
+
+	var scopes = 'https://www.googleapis.com/auth/plus.me';
+  
+  	function handleClientLoad() {
+		console.info('I got here');
+    	gapi.client.setApiKey(apiKey);
+    	window.setTimeout(checkAuth,1);
+  	}
+	
+	function checkAuth() {
+	  gapi.auth.authorize({client_id: clientId, scope: scopes, immediate: true}, handleAuthResult);
+	}
+
+	function handleAuthResult(authResult) {
+	  var authorizeButton = document.getElementById('authorize-button');
+	  var form = document.getElementById('content');
+		console.log(authResult);
+
+	  if (authResult && !authResult.error) {
+	    authorizeButton.style.visibility = 'hidden';
+		form.style.visibility = '';
+	    //makeApiCall();
+	  } else {
+	    authorizeButton.style.visibility = '';
+		form.style.visibility = 'hidden';
+	    authorizeButton.onclick = handleAuthClick;
+	  }
+	}
+	
+    function handleAuthClick(event) {
+      gapi.auth.authorize({client_id: clientId, scope: scopes, immediate: false}, handleAuthResult);
+      return false;
+    }
+	
+    function makeApiCall() {
+      gapi.client.load('plus', 'v1', function() {
+        var request = gapi.client.plus.people.get({
+          'userId': 'me'
+        });
+        request.execute(function(resp) {
+		  //console.info(resp);
+          var heading = document.createElement('h4');
+          var image = document.createElement('img');
+          image.src = resp.image.url;
+          heading.appendChild(image);
+          heading.appendChild(document.createTextNode(resp.displayName));
+          document.getElementById('content').appendChild(heading);
+        });
+      });
+    }
+  </script>
 
 </head>
-<body data-ng-controller='DemoCtrl'>
 
+<body data-ng-controller='DemoCtrl' onload="handleClientLoad()">
   <h1>Sms Edu Report</h1>
- 
-  <form>
+  
+  <button id="authorize-button" style="visibility: hidden">Authorize</button>
+  
+  <form id = "content">
     <input type='file' file-model='file'>
 	<button type='button' ng-click='upload()'>Upload</button>
+	
+  	<p ng-if='file'>
+    	The name of your file is {{ file.name }} and the size is of {{ file.size }} bytes.
+  	</p>
   </form>
   
-  <p ng-if='file'>
-    The name of your file is {{ file.name }} and the size is of {{ file.size }} bytes.
-  </p>
   
 </body>
+
+
 </html>
